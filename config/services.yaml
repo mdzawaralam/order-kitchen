@@ -1,0 +1,29 @@
+# config/services.yaml
+
+parameters:
+    kitchen_capacity: '%env(int:KITCHEN_CAPACITY)%'
+    auto_complete_delay: '%env(int:AUTO_COMPLETE_DELAY)%'
+
+services:
+    # Default configuration for all services
+    _defaults:
+        autowire: true      # Automatically inject dependencies
+        autoconfigure: true # Automatically registers services as commands, subscribers, etc.
+        bind:
+            string $kitchenCapacity: '%kitchen_capacity%' # Inject kitchen_capacity wherever string $kitchenCapacity is required
+
+    # Makes classes in src/ available as services
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Explicit service for KitchenService (optional now because of _defaults > bind)
+    App\Service\KitchenService: ~
+
+    # Explicit service for AutoCompleteOrdersCommand
+    App\Command\AutoCompleteOrdersCommand:
+        arguments:
+            $autoCompleteDelay: '%auto_complete_delay%'
