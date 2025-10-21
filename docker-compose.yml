@@ -1,7 +1,9 @@
 version: '3.8'
+
 services:
   db:
     image: postgres:15
+    container_name: order_kitchen_db
     restart: always
     environment:
       POSTGRES_DB: order_kitchen
@@ -15,9 +17,14 @@ services:
   php:
     build: .
     container_name: order_kitchen_app
+    depends_on:
+      - db
     volumes:
       - .:/var/www/html
     ports:
       - "8000:8000"
-    depends_on:
-      - db
+    environment:
+      DATABASE_URL: "postgresql://dbuser:dbpass@db:5432/order_kitchen?serverVersion=15&charset=utf8"
+      KITCHEN_CAPACITY: 5
+      NEXT_PICKUP_BUFFER: 15
+      AUTO_COMPLETE_DELAY: 10
