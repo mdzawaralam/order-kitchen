@@ -20,6 +20,9 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# ✅ Install PHP dependencies
+RUN composer install --no-interaction --no-progress --optimize-autoloader
+
 # Cron job setup
 COPY cronjob.txt /etc/cron.d/auto-complete-orders
 RUN chmod 0644 /etc/cron.d/auto-complete-orders \
