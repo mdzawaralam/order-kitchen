@@ -23,13 +23,13 @@ services:
       start_period: 10s
 
   php:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: order_kitchen_app
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - .:/var/www/html
     ports:
       - "8000:8000"
     environment:
@@ -37,6 +37,21 @@ services:
       KITCHEN_CAPACITY: 5
       NEXT_PICKUP_BUFFER: 15
       AUTO_COMPLETE_DELAY: 10
+    volumes:
+      # Mount your source code, but do NOT overwrite vendor or node_modules
+      - .:/var/www/html
+      - /var/www/html/vendor
+    command: >
+      sh -c "
+        if [ ! -d vendor ]; then
+          echo '📦 Installing Composer dependencies...';
+          composer install --no-interaction --no-progress --optimize-autoloader;
+        fi &&
+        echo '🚀 Running migrations...' &&
+        php bin/console doctrine:migrations:migrate --no-interaction || true &&
+        echo '✅ Starting PHP server...' &&
+        php -S 0.0.0.0:8000 -t public
+      "
 
 networks:
   default:
