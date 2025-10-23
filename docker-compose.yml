@@ -1,4 +1,5 @@
-version: '3.8'
+# Docker Compose for Order Kitchen App
+# Works cleanly on any machine without installing PHP, Apache, or PostgreSQL locally
 
 services:
   db:
@@ -12,13 +13,21 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # Ensures persistent data and proper permissions
       - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dbuser -d order_kitchen" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   php:
     build: .
     container_name: order_kitchen_app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/var/www/html
     ports:
@@ -28,3 +37,7 @@ services:
       KITCHEN_CAPACITY: 5
       NEXT_PICKUP_BUFFER: 15
       AUTO_COMPLETE_DELAY: 10
+
+networks:
+  default:
+    driver: bridge

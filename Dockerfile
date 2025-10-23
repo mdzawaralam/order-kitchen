@@ -14,8 +14,10 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && php -r "unlink('composer-setup.php');"
 
+# Set working directory
 WORKDIR /var/www/html
 
+# Copy project files
 COPY . .
 
 # Cron job setup
@@ -24,5 +26,8 @@ RUN chmod 0644 /etc/cron.d/auto-complete-orders \
     && crontab /etc/cron.d/auto-complete-orders \
     && touch /var/log/cron.log
 
-# Keep container running and run cron
-CMD ["sh", "-c", "cron && tail -f /var/log/cron.log"]
+# Expose Symfony port
+EXPOSE 8000
+
+# ✅ Start both cron and Symfony server
+CMD ["sh", "-c", "cron && php -S 0.0.0.0:8000 -t public"]
