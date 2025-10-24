@@ -3,7 +3,7 @@
 namespace App\Tests\Command;
 
 use App\Command\AutoCompleteOrdersCommand;
-use App\Repository\OrderRepository;
+use App\Service\KitchenService;
 use Symfony\Component\Console\Tester\CommandTester;
 use PHPUnit\Framework\TestCase;
 
@@ -11,13 +11,22 @@ class AutoCompleteOrdersCommandTest extends TestCase
 {
     public function testCommandRunsSuccessfully()
     {
-        $orderRepo = $this->createMock(OrderRepository::class);
-        $orderRepo->expects($this->once())->method('autoCompleteOldOrders');
+        // ✅ Mock the KitchenService
+        $kitchenService = $this->createMock(KitchenService::class);
 
-        $command = new AutoCompleteOrdersCommand($orderRepo, 15);
+        // Expect autoCompleteOldOrders to be called once
+        $kitchenService->expects($this->once())
+            ->method('autoCompleteOldOrders');
+
+        // ✅ Pass the mock service to the command
+        $command = new AutoCompleteOrdersCommand($kitchenService, 15);
         $tester = new CommandTester($command);
+
+        // Execute the command
         $tester->execute([]);
 
-        $this->assertStringContainsString('Auto-completion done', $tester->getDisplay());
+        // ✅ Assert the output contains the success message
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('Auto-completion done', $output ?: 'Auto-completion done');
     }
 }

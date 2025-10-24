@@ -16,8 +16,8 @@ class KitchenServiceTest extends TestCase
         $orderRepo->method('countActiveOrders')->willReturn(1);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->method('persist')->willReturn(null);
-        $em->method('flush')->willReturn(null);
+        $em->expects($this->once())->method('persist');
+        $em->expects($this->once())->method('flush');
 
         $service = new KitchenService($em, $orderRepo, 5);
 
@@ -40,5 +40,21 @@ class KitchenServiceTest extends TestCase
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('next_available_pickup_time', $result);
+    }
+
+    public function testAutoCompleteOldOrders()
+    {
+        $order = $this->createMock(Order::class);
+        $order->expects($this->once())->method('setStatus')->with(Order::STATUS_COMPLETED);
+
+        $orderRepo = $this->createMock(OrderRepository::class);
+        $orderRepo->method('findOrdersToAutoComplete')->willReturn([$order]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('persist')->with($order);
+        $em->expects($this->once())->method('flush');
+
+        $service = new KitchenService($em, $orderRepo, 5);
+        $service->autoCompleteOldOrders();
     }
 }
