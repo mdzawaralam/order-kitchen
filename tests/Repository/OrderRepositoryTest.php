@@ -21,15 +21,12 @@ class OrderRepositoryTest extends KernelTestCase
 
     public function testCountActiveOrders()
     {
-        // clear all orders
         $conn = $this->em->getConnection();
         $conn->executeStatement('DELETE FROM "order"');
 
-        // create active order
         $order1 = new Order(['Burger'], new \DateTimeImmutable('+10 minutes'), false);
         $order1->setStatus(Order::STATUS_ACTIVE);
 
-        // create completed order
         $order2 = new Order(['Pizza'], new \DateTimeImmutable('+20 minutes'), false);
         $order2->setStatus(Order::STATUS_COMPLETED);
 

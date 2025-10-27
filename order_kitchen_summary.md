@@ -1,10 +1,10 @@
-# 🍽️ Order Kitchen Project – Task Completion Summary
+# Order Kitchen Project – Task Completion Summary
 
 This document summarizes all completed tasks, configurations, and commands for the **Order Kitchen Symfony Application** using **PostgreSQL** and **Docker**.
 
 ---
 
-## ✅ 1. Core APIs
+##  1. Core APIs
 
 ### **POST /orders**
 **URL:** `http://127.0.0.1:8000/orders`  
@@ -76,7 +76,7 @@ If the kitchen is full:
 
 ---
 
-## ✅ 2. Kitchen Capacity + VIP
+##  2. Kitchen Capacity + VIP
 
 - Controlled by `.env` variable:  
   ```bash
@@ -87,7 +87,7 @@ If the kitchen is full:
 
 ---
 
-## ✅ 3. Suggest Next Pickup Time
+##  3. Suggest Next Pickup Time
 
 - Controlled via buffer in `.env`:
   ```bash
@@ -97,14 +97,14 @@ If the kitchen is full:
 
 ---
 
-## ✅ 4. Priority Queue (VIP)
+##  4. Priority Queue (VIP)
 
 - VIP orders are prioritized automatically using sorting logic in the repository/service layer.
 - Example: VIP orders always appear first in `/orders/active` response.
 
 ---
 
-## ✅ 5. Auto-Complete Background Job
+##  5. Auto-Complete Background Job
 
 - Command: `App\Command\AutoCompleteOrdersCommand`
 - Registered in `services.yaml`:
@@ -126,7 +126,7 @@ If the kitchen is full:
 
 ---
 
-## ✅ 6. Database Persistence
+##  6. Database Persistence
 
 - Database: **PostgreSQL**
 - Environment variables in `.env`:
@@ -142,7 +142,7 @@ If the kitchen is full:
 
 ---
 
-## ✅ 7. Unit Tests
+##  7. Unit Tests
 
 - Example: `tests/Repository/OrderRepositoryTest.php`
 - Test database uses PostgreSQL URL:
@@ -157,7 +157,7 @@ If the kitchen is full:
 
 ---
 
-## ✅ 8. Docker Setup
+##  8. Docker Setup
 
 ### **docker-compose.yaml**
 ```yaml
@@ -187,7 +187,7 @@ services:
 
 ---
 
-## ✅ 9. Dockerfile (App)
+##  9. Dockerfile (App)
 ```dockerfile
 FROM php:8.2-cli
 WORKDIR /srv/app
@@ -198,7 +198,7 @@ CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
 
 ---
 
-## ✅ 10. Run Project Commands
+##  10. Run Project Commands
 
 ### **Run containers**
 ```bash
@@ -217,18 +217,18 @@ symfony serve -d
 
 ---
 
-## 🎯 Project Summary
+## Project Summary
 | Feature | Status | Notes |
 |----------|---------|-------|
-| Core APIs | ✅ Completed | CRUD and completion APIs |
-| Kitchen Capacity | ✅ Completed | Configurable in `.env` |
-| VIP Priority | ✅ Completed | Priority queue implemented |
-| Next Pickup Suggestion | ✅ Completed | Dynamic logic applied |
-| Auto-Complete Job | ✅ Completed | Background command + cron |
-| Database | ✅ PostgreSQL | Persistent storage |
-| Unit Tests | ✅ Basic coverage | PHPUnit configured |
-| Docker Setup | ✅ Working | App + DB containers |
+| Core APIs |  Completed | CRUD and completion APIs |
+| Kitchen Capacity |  Completed | Configurable in `.env` |
+| VIP Priority |  Completed | Priority queue implemented |
+| Next Pickup Suggestion |  Completed | Dynamic logic applied |
+| Auto-Complete Job |  Completed | Background command + cron |
+| Database |  PostgreSQL | Persistent storage |
+| Unit Tests |  Basic coverage | PHPUnit configured |
+| Docker Setup |  Working | App + DB containers |
 
 ---
 
-✅ **All core and extended tasks have been implemented successfully.**
+ **All core and extended tasks have been implemented successfully.**

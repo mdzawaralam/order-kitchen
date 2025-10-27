@@ -26,10 +26,7 @@ class AutoCompleteOrdersCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Call the service method to auto-complete old orders
         $this->kitchenService->autoCompleteOldOrders();
-
-        // ✅ Print a success message that matches the PHPUnit test
         $output->writeln('<info>Auto-completion done</info>');
 
         return Command::SUCCESS;
