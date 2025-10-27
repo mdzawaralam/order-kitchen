@@ -1,30 +1,38 @@
 <?php
+
 namespace App\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\OrderRepository;
 use App\Entity\Order;
+use App\Repository\OrderRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 
 class KitchenService
 {
-    private int $capacity;
     private EntityManagerInterface $em;
     private OrderRepository $orderRepository;
     private Connection $conn;
+    private int $capacity;
     private int $autoCompleteDelay;
 
-    public function __construct(EntityManagerInterface $em, OrderRepository $orderRepository, string $kitchenCapacity, int $autoCompleteDelay = 10)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        OrderRepository $orderRepository,
+        string $kitchenCapacity,
+        int $autoCompleteDelay = 10
+    ) {
         $this->em = $em;
         $this->orderRepository = $orderRepository;
         $this->conn = $em->getConnection();
-        $this->capacity = (int)$kitchenCapacity;
+        $this->capacity = (int) $kitchenCapacity;
         $this->autoCompleteDelay = $autoCompleteDelay;
     }
 
     /**
-     * Try to create an order, respecting capacity. Returns the Order if accepted, or array if rejected.
+     * Attempts to create a new order while respecting the kitchen capacity.
+     * Returns:
+     * - Order object if accepted
+     * - Array with error and next available time if rejected
      */
     public function tryCreateOrder(array $items, \DateTimeImmutable $pickupTime, bool $vip): Order|array|null
     {
@@ -35,16 +43,18 @@ class KitchenService
             return $order;
         }
 
-        $conn = $this->em->getConnection();
+        $conn = $this->conn;
         $conn->beginTransaction();
 
         try {
+            // Ensure consistent reads and writes
             $conn->executeStatement('LOCK TABLE "order" IN SHARE ROW EXCLUSIVE MODE');
 
             $activeCount = $this->orderRepository->countActiveOrders();
 
             if ($activeCount >= $this->capacity) {
                 $earliestPickup = $this->orderRepository->findEarliestActivePickupTime();
+
                 $suggested = $earliestPickup instanceof \DateTimeImmutable
                     ? $earliestPickup->modify('+15 minutes')
                     : (new \DateTimeImmutable())->modify('+15 minutes');
@@ -70,6 +80,9 @@ class KitchenService
         }
     }
 
+    /**
+     * Marks the given order as completed and persists the change.
+     */
     public function completeOrder(Order $order): void
     {
         $order->setStatus(Order::STATUS_COMPLETED);
@@ -78,12 +91,13 @@ class KitchenService
     }
 
     /**
-     * Auto-complete orders past their pickup time + buffer
+     * Automatically completes orders past their pickup time + delay buffer.
      */
-    public function autoCompleteOldOrders(int $delay = null): void
+    public function autoCompleteOldOrders(?int $delay = null): void
     {
         $delayMinutes = $delay ?? $this->autoCompleteDelay;
-        $cutoff = new \DateTimeImmutable('-'.$delayMinutes.' minutes');
+        $cutoff = new \DateTimeImmutable('-' . $delayMinutes . ' minutes');
+
         $orders = $this->orderRepository->findOrdersToAutoComplete($cutoff);
 
         foreach ($orders as $order) {

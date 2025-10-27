@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class KitchenServiceTest extends TestCase
 {
-    public function testCreateOrderWhenCapacityAvailable()
+    public function testCreateOrderWhenCapacityAvailable(): void
     {
         $orderRepo = $this->createMock(OrderRepository::class);
         $orderRepo->method('countActiveOrders')->willReturn(1);
@@ -27,13 +27,14 @@ class KitchenServiceTest extends TestCase
         $this->assertFalse($order->isVip());
     }
 
-    public function testCreateOrderWhenKitchenFull()
+    public function testCreateOrderWhenKitchenFull(): void
     {
         $orderRepo = $this->createMock(OrderRepository::class);
         $orderRepo->method('countActiveOrders')->willReturn(5);
         $orderRepo->method('findEarliestActivePickupTime')->willReturn(new \DateTimeImmutable());
 
         $em = $this->createMock(EntityManagerInterface::class);
+
         $service = new KitchenService($em, $orderRepo, 5);
 
         $result = $service->tryCreateOrder(['Pizza'], new \DateTimeImmutable('+10 minutes'), false);
@@ -42,7 +43,7 @@ class KitchenServiceTest extends TestCase
         $this->assertArrayHasKey('next_available_pickup_time', $result);
     }
 
-    public function testAutoCompleteOldOrders()
+    public function testAutoCompleteOldOrders(): void
     {
         $order = $this->createMock(Order::class);
         $order->expects($this->once())->method('setStatus')->with(Order::STATUS_COMPLETED);

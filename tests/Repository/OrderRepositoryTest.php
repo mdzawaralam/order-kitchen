@@ -4,12 +4,13 @@ namespace App\Tests\Repository;
 
 use App\Entity\Order;
 use App\Repository\OrderRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class OrderRepositoryTest extends KernelTestCase
 {
     private OrderRepository $orderRepository;
-    private \Doctrine\ORM\EntityManagerInterface $em;
+    private EntityManagerInterface $em;
 
     protected function setUp(): void
     {
@@ -19,7 +20,7 @@ class OrderRepositoryTest extends KernelTestCase
         $this->orderRepository = $this->em->getRepository(Order::class);
     }
 
-    public function testCountActiveOrders()
+    public function testCountActiveOrders(): void
     {
         $conn = $this->em->getConnection();
         $conn->executeStatement('DELETE FROM "order"');
@@ -39,27 +40,26 @@ class OrderRepositoryTest extends KernelTestCase
         $this->assertSame(1, $count, 'There should be exactly one active order.');
     }
 
-    public function testFindEarliestActivePickupTime()
+    public function testFindEarliestActivePickupTime(): void
     {
-        // clear all orders
         $conn = $this->em->getConnection();
         $conn->executeStatement('DELETE FROM "order"');
 
-        $o1 = new Order(['Tea'], new \DateTimeImmutable('+15 minutes'), false);
-        $o1->setStatus(Order::STATUS_ACTIVE);
+        $order1 = new Order(['Tea'], new \DateTimeImmutable('+15 minutes'), false);
+        $order1->setStatus(Order::STATUS_ACTIVE);
 
-        $o2 = new Order(['Coffee'], new \DateTimeImmutable('+5 minutes'), false);
-        $o2->setStatus(Order::STATUS_ACTIVE);
+        $order2 = new Order(['Coffee'], new \DateTimeImmutable('+5 minutes'), false);
+        $order2->setStatus(Order::STATUS_ACTIVE);
 
-        $this->em->persist($o1);
-        $this->em->persist($o2);
+        $this->em->persist($order1);
+        $this->em->persist($order2);
         $this->em->flush();
 
         $earliest = $this->orderRepository->findEarliestActivePickupTime();
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $earliest);
         $this->assertSame(
-            $o2->getPickupTime()->format('Y-m-d H:i'),
+            $order2->getPickupTime()->format('Y-m-d H:i'),
             $earliest->format('Y-m-d H:i'),
             'The earliest pickup time should match the earliest active order.'
         );

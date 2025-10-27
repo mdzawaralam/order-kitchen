@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'app:auto-complete-orders',
-    description: 'Automatically completes orders that have passed their pickup time + buffer.',
+    description: 'Automatically completes orders that have passed their pickup time plus buffer.',
 )]
 class AutoCompleteOrdersCommand extends Command
 {
@@ -20,8 +20,9 @@ class AutoCompleteOrdersCommand extends Command
     public function __construct(KitchenService $kitchenService, string $autoCompleteDelay = '10')
     {
         parent::__construct();
+
         $this->kitchenService = $kitchenService;
-        $this->autoCompleteDelay = (int)$autoCompleteDelay;
+        $this->autoCompleteDelay = (int) $autoCompleteDelay;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
